@@ -1,4 +1,14 @@
 <?php require 'data.php'; 
+function getInvoiceNumber ($length = 5) {
+    $letters = range('A', 'Z');
+    $number = [];
+    
+    for ($i = 0; $i < $length; $i++) {
+      array_push($number, $letters[rand(0, count($letters) - 1)]);
+    }
+    return implode($number);
+  }
+
     session_start();
     $status = isset($_GET['status']) ? $_GET['status'] : 'all';
     if (isset($_POST['client'])){
@@ -9,8 +19,9 @@
             'client' => $_POST['client'],
             'email'  => $_POST['email'],
         ]);
+        $_SESSION['invoice'] = $invoices;
     }
-    $_SESSION['invoice'] = $invoices;
+    
     if (isset($_SESSION['invoice'])) {
         $invoices = $_SESSION['invoice'];
     } else {
@@ -47,15 +58,3 @@
         </nav>
     </header>
 
-<?php
-
-function getInvoiceNumber ($length = 5) {
-    $letters = range('A', 'Z');
-    $number = [];
-    
-    for ($i = 0; $i < $length; $i++) {
-      array_push($number, $letters[rand(0, count($letters) - 1)]);
-    }
-    return implode($number);
-  }
-?>
