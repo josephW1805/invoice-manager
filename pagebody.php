@@ -1,6 +1,6 @@
 
 <h2 class="text-secondary"><?php echo ucfirst($myCurrentPage); ?></h2>
-    <table class="table table-bordered table-striped" width="100%">
+    <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>Number</th>
@@ -12,18 +12,28 @@
                 </thead>
                 <tbody>
                 <?php
-                function showPending($status){
+                function showStatus($status){
                     global $myCurrentPage; 
                     return $status['status'] == $myCurrentPage;
                 }
 
-                $filteredInvoice = array_filter($invoices, "showPending");
-                foreach ($filteredInvoice as $invoice){
-                    echo "<tr>";
-                    foreach ($invoice as $key => $data){
-                        echo "<td>{$data}</td>";
+                $filteredInvoice = array_filter($invoices, "showStatus");
+                if ($status == "all"){
+                    foreach ($invoices as $invoice){
+                        echo "<tr>";
+                        foreach ($invoice as $key => $data){
+                            echo "<td>{$data}</td>";
+                        }
+                        echo "</tr>";
                     }
-                    echo "</tr>";
+                }else{
+                    foreach ($filteredInvoice as $invoice){
+                        echo "<tr>";
+                        foreach ($invoice as $key => $data){
+                            echo "<td>{$data}</td>";
+                        }
+                        echo "</tr>";
+                    }
                 }
                 ?>
                 </tr>

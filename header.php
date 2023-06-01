@@ -1,5 +1,21 @@
 <?php require 'data.php'; 
-
+    session_start();
+    $status = isset($_GET['status']) ? $_GET['status'] : 'all';
+    if (isset($_POST['client'])){
+        array_push($invoices, [
+            'number' => getInvoiceNumber(),
+            'amount' => $_POST['amount'],
+            'status' => $_POST['status'],
+            'client' => $_POST['client'],
+            'email'  => $_POST['email'],
+        ]);
+    }
+    $_SESSION['invoice'] = $invoices;
+    if (isset($_SESSION['invoice'])) {
+        $invoices = $_SESSION['invoice'];
+    } else {
+        $_SESSION['invoice'] = $invoices;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +24,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <title>Paid</title>
+    <title>Invoice</title>
 </head>
 <body>
 <main>
@@ -23,19 +39,23 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link text-dark">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="draft.php" class="nav-link text-dark"><?php echo ucfirst($statuses[1]) ; ?></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="pending.php" class="nav-link text-dark"><?php echo ucfirst($statuses[2]); ?></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="paid.php" class="nav-link text-dark"><?php echo ucfirst($statuses[3]); ?></a>
+                            <a class="nav-link text-dark"" href="add.php">New Invoice</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
+<?php
+
+function getInvoiceNumber ($length = 5) {
+    $letters = range('A', 'Z');
+    $number = [];
+    
+    for ($i = 0; $i < $length; $i++) {
+      array_push($number, $letters[rand(0, count($letters) - 1)]);
+    }
+    return implode($number);
+  }
+?>

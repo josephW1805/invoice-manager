@@ -1,4 +1,5 @@
-<?php 
+<?php
+
   $statuses = ['all', 'draft', 'pending', 'paid'];
 
   $invoices = [
