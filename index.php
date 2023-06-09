@@ -1,8 +1,8 @@
 <?php 
     require "header.php";
+    require "data.php";
     $myCurrentPage = $status;
-?>
-<?php
+    
     $peding = "text-primary";
     $draft = "text-primary";
     $paid = "text-primary";
