@@ -64,57 +64,83 @@ function validate($invoice)
     return $errors;
 }
 
+function getInvoices()
+{
+    global $db;
+    $sql = "SELECT * FROM invoices JOIN statuses WHERE invoices.status_id = statuses.id ORDER BY invoices.id";
+    $result = $db->query($sql);
+    $invoices = $result->fetchAll();
+
+    return $invoices;
+}
+
+function filterInvoices($status)
+{
+    global $db;
+    $sql = "SELECT * FROM invoices JOIN statuses WHERE invoices.status_id = statuses.id ORDER BY invoices.id";
+    $result = $db->prepare($sql);
+    $result->execute([":status" => $status]);
+    $invoices = $result->fetchAll();
+
+    return $invoices;
+}
+
 function getInvoice($number)
 {
-    global $invoices;
-
-    return current(array_filter($invoices, function ($invoice) use ($number) {
-        return $invoice['number'] == $number;
-    }));
+    global $db;
+    $sql = "SELECT * FROM invoices JOIN statuses on invoices.status_id = statuses.id
+        WHERE number = :number";
+    $result = $db->prepare($sql);
+    $result->execute([':number' => $number]);
+    return $result->fetch();
 }
 
 function addInvoice($invoice)
 {
-    global $invoices;
+    global $db;
+    global $statuses;
 
-    array_push($invoices, [
-        'number' => getInvoiceNumber(),
-        'amount' => $invoice['amount'],
-        'status' => $invoice['status'],
-        'client' => $invoice['client'],
-        'email' => $invoice['email'],
+    $status_id = array_search($invoice['status'], $statuses) + 1;
+
+    $sql = "INSERT INTO invoices (number, client, email, amount, status_id) VALUE (:number, :client, :email, :amount, :status_id)";
+    $result = $db->prepare($sql);
+    $result->execute([
+        "number" => getInvoiceNumber(),
+        "client" => $invoice['client'],
+        "email" => $invoice['email'],
+        "amount" => $invoice['amount'],
+        "status_id" => $status_id,
     ]);
 
-    $_SESSION['invoices'] = $invoices;
-
-    return end($invoices)['number'];
+    return $db->lastInsertId();
 }
 
 function updateInvoice($invoice)
 {
-    global $invoices;
+    global $db;
+    global $statuses;
 
-    $invoices = array_map(function ($i) use ($invoice) {
-        if ($i['number'] == $invoice['number']) {
-            return $invoice;
-        }
-        return $i;
-    }, $invoices);
+    $status_id = array_search($invoice['status'], $statuses) + 1;
 
-    $_SESSION['invoices'] = $invoices;
+    $sql = "UPDATE invoices SET number = :number, client = :client, email = :email, amount = :amount, status_id = :status_id WHERE number = :number";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([
+        "client" => $invoice["client"],
+        "email" => $invoice["email"],
+        "amount" => $invoice["amount"],
+        "status_id" => $status_id,
+        "number" => $invoice["number"]
+    ]);
 
-    return $invoice['number'];
+    return $invoice["number"];
 }
 
 function deleteInvoice($number)
 {
-    global $invoices;
+    global $db;
+    $sql = "DELETE FROM invoices WHERE number = :number";
+    $stmt = $db->prepare($sql);
+    $stmt->execute(["number" => $number]);
 
-    $invoices = array_filter($invoices, function ($invoice) use ($number) {
-        return $invoice['number'] != $number;
-    });
-
-    $_SESSION['invoices'] = $invoices;
-
-    return true;
-} 
+    return $stmt->rowCount();
+}

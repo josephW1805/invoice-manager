@@ -5,49 +5,32 @@
     <thead>
         <tr>
             <th>Number</th>
-            <th>Amount</th>
-            <th>Status</th>
             <th>Client</th>
             <th>Email</th>
+            <th>Amount</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
         <?php
-        function showStatus($status)
-        {
-            global $myCurrentPage;
-            return $status['status'] == $myCurrentPage;
-        }
-
-        $filteredInvoice = array_filter($invoices, "showStatus");
-        if ($status == "all") {
-            foreach ($invoices as $invoice) {
-                echo "<tr>";
-                foreach ($invoice as $key => $data) {
-                    echo "<td>{$data}</td>";
-                }
-                echo "<td>
-                            <a class='btn btn-primary m-3' href='update.php?number={$invoice['number']}'>Edit</a>
-                            <form class='form' method='post' action='delete.php'>
-                                <input type='hidden' name='number' value={$invoice['number']}>
-                                <button class='btn btn-danger'>Delete</button>
-                            </form>
-                            </td>";
-            }
+        require "function.php";
+        if (isset($_GET["status"])) {
+            $invoices = filterInvoices($_GET["status"]);
         } else {
-            foreach ($filteredInvoice as $invoice) {
-                echo "<tr>";
-                foreach ($invoice as $key => $data) {
-                    echo "<td>{$data}</td>";
-                }
-                echo "<td>
-                        <a class='btn btn-primary m-3' href='update.php?number={$invoice['number']}'>Edit</a>
-                        <form class='form' method='post' action='delete.php'>
-                            <input type='hidden' name='number' value={$invoice['number']}>
-                            <button class='btn btn-danger'>Delete</button>
-                        </form>
-                        </td>";
+            $invoices = getInvoices();
+        }
+        foreach ($invoices as $invoice) {
+            echo "<tr>";
+            foreach ($invoice as $key => $data) {
+                echo "<td>{$data}</td>";
             }
+            echo "<td>
+                    <a class='btn btn-primary m-3' href='update.php?number={$invoice['number']}'>Edit</a>
+                    <form class='form' method='post' action='delete.php'>
+                        <input type='hidden' name='number' value={$invoice['number']}>
+                        <button class='btn btn-danger'>Delete</button>
+                    </form>
+                    </td>";
         }
         ?>
     </tbody>
