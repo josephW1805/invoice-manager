@@ -77,7 +77,8 @@ function getInvoices()
 function filterInvoices($status)
 {
     global $db;
-    $sql = "SELECT * FROM invoices JOIN statuses WHERE invoices.status_id = statuses.id ORDER BY invoices.id";
+    $sql = "SELECT * FROM invoices JOIN statuses on invoices.status_id = statuses.id
+    WHERE status = :status  ORDER BY invoices.id";
     $result = $db->prepare($sql);
     $result->execute([":status" => $status]);
     $invoices = $result->fetchAll();
@@ -104,15 +105,19 @@ function addInvoice($invoice)
 
     $sql = "INSERT INTO invoices (number, client, email, amount, status_id) VALUE (:number, :client, :email, :amount, :status_id)";
     $result = $db->prepare($sql);
+    $invoice_number = getInvoiceNumber();
     $result->execute([
-        "number" => getInvoiceNumber(),
+        "number" => $invoice_number,
         "client" => $invoice['client'],
         "email" => $invoice['email'],
         "amount" => $invoice['amount'],
         "status_id" => $status_id,
     ]);
 
-    return $db->lastInsertId();
+    $number = $db->lastInsertId();
+    saveFile($invoice_number);
+
+    return $number;
 }
 
 function updateInvoice($invoice)
@@ -132,6 +137,8 @@ function updateInvoice($invoice)
         "number" => $invoice["number"]
     ]);
 
+    saveFile($invoice['number']);
+
     return $invoice["number"];
 }
 
@@ -143,4 +150,29 @@ function deleteInvoice($number)
     $stmt->execute(["number" => $number]);
 
     return $stmt->rowCount();
+}
+
+function saveFile($number)
+{
+    $file = $_FILES['doc'];
+
+    if ($file['error'] === UPLOAD_ERR_OK) {
+        // get file extension
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = $number . "." . $ext;
+
+        if (!file_exists('documents/')) {
+            mkdir('documents/');
+        }
+
+        $dest = 'documents/' . $filename;
+
+        if (file_exists($dest)) {
+            unlink($dest);
+        }
+
+        return move_uploaded_file($file['tmp_name'], $dest);
+    }
+
+    return false;
 }

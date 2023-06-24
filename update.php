@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="card-body p-4">
         <h2 class="form-title">Edit Invoice</h2>
-        <form class="form" method="post">
+        <form class="form" method="post" enctype="multipart/form-data">
             <input type="hidden" name="number" value="<?php echo $invoice['number']; ?>">
             <?php require "inputs.php"; ?>
             <div class="row pt-2">

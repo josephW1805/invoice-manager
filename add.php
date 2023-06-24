@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     <div class="card-body p-4">
-        <form class="form" method="post">
+        <form class="form" method="post" enctype="multipart/form-data">
             <div class="p-3">
                 <?php include "inputs.php"; ?>
                 <div class="row pt-2">

@@ -4,11 +4,12 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Number</th>
-            <th>Client</th>
-            <th>Email</th>
-            <th>Amount</th>
-            <th>Status</th>
+            <th width='10%'>Number</th>
+            <th width='10%'>Client</th>
+            <th width='20%'>Email</th>
+            <th width='10%'>Amount</th>
+            <th width='15%'>Status</th>
+            <th width='5%' Colspan="3"></th>
         </tr>
     </thead>
     <tbody>
@@ -20,17 +21,37 @@
             $invoices = getInvoices();
         }
         foreach ($invoices as $invoice) {
-            echo "<tr>";
-            foreach ($invoice as $key => $data) {
-                echo "<td>{$data}</td>";
+            switch ($statuses[$invoice['status_id'] - 1]) {
+                case 'pending':
+                    $stat_background = 'bg-primary';
+                    break;
+                case 'draft':
+                    $stat_background = 'bg-secondary';
+                    break;
+                case 'paid':
+                    $stat_background = 'bg-success';
             }
-            echo "<td>
-                    <a class='btn btn-primary m-3' href='update.php?number={$invoice['number']}'>Edit</a>
+
+            echo "<tr>";
+            echo "<td>{$invoice['number']}</td>";
+            echo "<td style='color: blue'>{$invoice['client']}</td>";
+            echo "<td>{$invoice['email']}</td>";
+            echo "<td>$" . $invoice['amount'] . "</td>";
+            echo "<td class='$stat_background' style='color: white; text-align:center;'>{$statuses[$invoice['status_id'] - 1]}</td>";
+            $file = 'documents/' . $invoice['number'] . '.pdf';
+            if (file_exists($file)) {
+                echo "<td style='text-align:center;'><a class='btn btn-info'  href='{$file}'>View</a></td>";
+            } else {
+                echo "<td></td>";
+            }
+            echo "<td style='text-align:center;'><a class='btn btn-warning' href='update.php?number={$invoice['number']}'>Edit</a></td>
+                  <td style='text-align:center;'>
                     <form class='form' method='post' action='delete.php'>
-                        <input type='hidden' name='number' value={$invoice['number']}>
-                        <button class='btn btn-danger'>Delete</button>
-                    </form>
+                            <input type='hidden' name='number' value='{$invoice['number']}'>
+                            <button class='btn btn-danger'>Delete</button>
+                        </form>
                     </td>";
+            echo "</tr>";
         }
         ?>
     </tbody>

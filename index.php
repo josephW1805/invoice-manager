@@ -3,6 +3,9 @@
     require "data.php";
 
     global $statuses;
+    $result = $db->query($sql);
+    $statuses = $result->fetchAll(PDO::FETCH_COLUMN, 1);
+    
     $status = isset($_GET['status']) ? $_GET['status'] : 'all';
     $myCurrentPage = $status;
     
